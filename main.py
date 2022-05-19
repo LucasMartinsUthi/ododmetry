@@ -32,8 +32,8 @@ motorC = LargeMotor(OUTPUT_C) # Magnet
 wheel_dim = 5.6
 robot_dm = 15.2
 
-velocidade_walk = 100
-velocidade_turn = 50
+velocidade_walk = 70
+velocidade_turn = 40
 
 robot_odo = robot_dm / wheel_dim
 
@@ -66,12 +66,12 @@ def walk(dis_cm, direction):
         dist_from_target = target - left_motor.position
         dist_from_start = left_motor.position - initial_pos
         
-        if(dist_from_target < 400):
-            controle_velocidade = dist_from_target/400
+        if(dist_from_target < 200):
+            controle_velocidade = dist_from_target/200
             velocidade = max(velocidade_walk * controle_velocidade, 10)
             
-        elif (dist_from_start < 400):
-            controle_velocidade = dist_from_start/400
+        elif (dist_from_start < 200):
+            controle_velocidade = dist_from_start/200
             velocidade = max(velocidade_walk * controle_velocidade, 10)
             
         else:
