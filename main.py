@@ -106,7 +106,10 @@ while True:
     # print(gyro_sensor_in3.rate)
     # time.sleep(0.3)
     
-        
+# TODO
+# aplicar filtro de kalman
+# valor do giroscopio tem que ser a mediana da pilha
+
     
     
 
