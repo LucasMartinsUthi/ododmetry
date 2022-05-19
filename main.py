@@ -32,7 +32,8 @@ motorC = LargeMotor(OUTPUT_C) # Magnet
 wheel_dim = 5.6
 robot_dm = 15.2
 
-velocidade = 70
+velocidade_walk = 100
+velocidade_turn = 50
 
 robot_odo = robot_dm / wheel_dim
 
@@ -40,7 +41,7 @@ walk_kp = 2
 
 def rotate(num):
     degrees = num*robot_odo
-    tank.on_for_degrees(velocidade, -velocidade, degrees)
+    tank.on_for_degrees(velocidade_turn, -velocidade_turn, degrees)
     
     left_motor.wait_while('running', 5000)
     
@@ -48,24 +49,38 @@ def rotate(num):
     # aplicar kalman
     
     
-def walk(dis_cm, angle):
+def walk(dis_cm, direction):
     wheel_circ = 2 * math.pi * (wheel_dim / 2)
     degrees = (dis_cm / wheel_circ) * 360
     target = left_motor.position + degrees
     # tank_drive.on_for_degrees(velocidade, velocidade, degrees)
     
+    initial_pos = left_motor.position
+    
+    controle_velocidade = velocidade_walk
     while left_motor.position <= target:
-        # print("Angle:", angle)
-        # print("Gyro:", gyro_sensor_in3.angle)
-        e = (angle - gyro_sensor_in3.angle) * walk_kp
+        e = (direction - gyro_sensor_in3.angle) * walk_kp
+        e = max(min(e, 100), -100)
         
-        # print("Erro:", e)
+        # derivada para a velocidade
+        dist_from_target = target - left_motor.position
+        dist_from_start = left_motor.position - initial_pos
+        
+        if(dist_from_target < 400):
+            controle_velocidade = dist_from_target/400
+            velocidade = max(velocidade_walk * controle_velocidade, 10)
+            
+        elif (dist_from_start < 400):
+            controle_velocidade = dist_from_start/400
+            velocidade = max(velocidade_walk * controle_velocidade, 10)
+            
+        else:
+            velocidade = velocidade_walk
         
         steering.on(e, velocidade)
         
     # aplicar kalman
-    left_motor.reset()
-    right_motor.reset()
+    tank.stop()
     
     
 contador = 0
@@ -77,7 +92,7 @@ while True:
     direcao = (90 * contador)
     print(direcao)
     
-    walk(50, direcao)
+    walk(100, direcao)
     time.sleep(0.5)
     rotate(90)
     time.sleep(0.5)
